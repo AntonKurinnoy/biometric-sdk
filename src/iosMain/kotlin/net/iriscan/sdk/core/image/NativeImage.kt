@@ -59,3 +59,44 @@ internal actual fun internalWriteNativeImage(
     CFRelease(cfData)
     return nsData
 }
+
+internal actual fun internalResizeNativeImage(image: NativeImage, newWidth: Int, newHeight: Int): NativeImage {
+    val pixelCount = newWidth * newHeight
+    val bytesPerRow = newWidth.toULong() * 4u
+    val data = nativeHeap.allocArray<UIntVar>(pixelCount * 4)
+    val colorSpace = CGColorSpaceCreateDeviceRGB()
+    val bitmapInfo = CGImageAlphaInfo.kCGImageAlphaNoneSkipLast.value
+    val context = CGBitmapContextCreate(data, newWidth.toULong(), newHeight.toULong(), 8u, bytesPerRow, colorSpace, bitmapInfo)
+    val resizedImage = CGBitmapContextCreateImage(context)
+
+    CGContextRelease(context)
+    nativeHeap.free(data)
+
+    return resizedImage.pointed
+}
+
+internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : IntArray {
+    val width = CGImageGetWidth(image.ptr)
+    val height = CGImageGetHeight(image.ptr)
+    val pixelCount = width * height
+    val bytesPerRow = width * 4u
+    val data = nativeHeap.allocArray<UIntVar>(pixelCount.toInt())
+    val colorSpace = CGColorSpaceCreateDeviceRGB()
+    val bitmapInfo = CGImageAlphaInfo.kCGImageAlphaNoneSkipFirst.value or kCGBitmapByteOrder32Big
+    val context = CGBitmapContextCreate(data, width, height, 8u, bytesPerRow, colorSpace, bitmapInfo)
+    CGContextDrawImage(context, CGRectMake(0.0, 0.0, width.toDouble(), height.toDouble()), image.ptr)
+    val dataBytes = CGBitmapContextGetData(context)!!.reinterpret<UByteVar>()
+    val offset = 4 * (y * width.toInt() + x)
+    val alpha = dataBytes[offset]
+    val red = dataBytes[offset+1].toInt()
+    val green = dataBytes[offset+2].toInt()
+    val blue = dataBytes[offset+3].toInt()
+
+    CGContextRelease(context)
+
+    return intArrayOf(red, green, blue)
+}
+
+internal actual fun internalNativeImageGetWidth(image: NativeImage): Int = CGImageGetWidth(image.ptr).toInt()
+
+internal actual fun internalNativeImageGetHeight(image: NativeImage): Int = CGImageGetHeight(image.ptr).toInt()

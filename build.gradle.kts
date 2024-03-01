@@ -63,6 +63,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-io:0.1.16")
+                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.3.1")
                 implementation("org.jetbrains.kotlinx:multik-core:0.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")

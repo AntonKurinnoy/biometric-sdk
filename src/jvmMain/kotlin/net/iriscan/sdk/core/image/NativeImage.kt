@@ -28,3 +28,24 @@ internal actual fun internalWriteNativeImage(
     ImageIO.write(image, writeFormat, outs)
     return outs.toByteArray()
 }
+
+internal actual fun internalResizeNativeImage(image: NativeImage, newWidth: Int, newHeight: Int): NativeImage {
+    val resizedImage = BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB)
+    var graphics2D = resizedImage.createGraphics()
+    graphics2D.drawImage(image, 0, 0, newWidth, newHeight, null)
+    graphics2D.dispose()
+    val tmp = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_AREA_AVERAGING)
+    graphics2D = resizedImage.createGraphics()
+    graphics2D.drawImage(tmp, 0, 0, null)
+    graphics2D.dispose()
+    return resizedImage
+}
+
+internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : IntArray {
+    val color = image.getRGB(x, y)
+    return intArrayOf(color.red(), color.green(), color.blue())
+}
+
+internal actual fun internalNativeImageGetWidth(image: NativeImage): Int = image.width
+
+internal actual fun internalNativeImageGetHeight(image: NativeImage): Int = image.height

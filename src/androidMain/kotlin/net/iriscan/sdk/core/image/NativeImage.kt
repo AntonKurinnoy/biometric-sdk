@@ -28,3 +28,15 @@ internal actual fun internalWriteNativeImage(
     image.compress(compressFormat, 90, outs)
     return outs.toByteArray()
 }
+
+internal actual fun internalResizeNativeImage(image: NativeImage, newWidth: Int, newHeight: Int): NativeImage =
+    Bitmap.createScaledBitmap(image, newWidth, newHeight, true)
+
+internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : IntArray {
+    val color = image.getPixel(x, y)
+    return intArrayOf(color.red(), color.green(), color.blue())
+}
+
+internal actual fun internalNativeImageGetWidth(image: NativeImage): Int = image.width
+
+internal actual fun internalNativeImageGetHeight(image: NativeImage): Int = image.height
