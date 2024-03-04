@@ -31,7 +31,7 @@ class TemplateOutputData(
 class ScoresBoxesOutputData(
     val outputOrder: Array<String>,
     val threshold: Double,
-    val bboxType: BboxType,
+    val bboxType: BBoxType,
 ) : ModelOutput(type = OutputType.SCORES_BOXES)
 
 
@@ -39,4 +39,4 @@ enum class OutputType { MASK_SCORE, MASK, TEMPLATE, SCORES_BOXES }
 
 enum class ScoreAlgorithm { L2NORM, COSNORM }
 
-enum class BboxType { BBOX_ULURWH, BBOX_ULURBLBR, BBOX_CXCYWH }
+enum class BBoxType { BBOX_ULURWH, BBOX_ULURBLBR, BBOX_CXCYWH }

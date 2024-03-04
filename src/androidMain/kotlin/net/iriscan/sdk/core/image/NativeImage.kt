@@ -32,9 +32,9 @@ internal actual fun internalWriteNativeImage(
 internal actual fun internalResizeNativeImage(image: NativeImage, newWidth: Int, newHeight: Int): NativeImage =
     Bitmap.createScaledBitmap(image, newWidth, newHeight, true)
 
-internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : IntArray {
+internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : Color {
     val color = image.getPixel(x, y)
-    return intArrayOf(color.red(), color.green(), color.blue())
+    return createColor(color.red(), color.green(), color.blue())
 }
 
 internal actual fun internalNativeImageGetWidth(image: NativeImage): Int = image.width

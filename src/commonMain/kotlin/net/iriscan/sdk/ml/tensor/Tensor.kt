@@ -5,10 +5,8 @@ import kotlinx.io.Buffer
 /**
  * @author Anton Kurinnoy
  */
-class Tensor(val shape: Shape, val data: Buffer, val type: TensorType)
+class Tensor(val shape: TensorShape, val data: Buffer, val type: TensorType)
 
-typealias Shape = IntArray
+typealias TensorShape = IntArray
 
 enum class TensorType { INT, FLOAT }
-
-

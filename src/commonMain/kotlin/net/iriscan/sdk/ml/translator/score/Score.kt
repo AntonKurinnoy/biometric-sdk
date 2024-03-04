@@ -1,4 +1,4 @@
-package net.iriscan.sdk.ml.translator.data
+package net.iriscan.sdk.ml.translator.score
 
 /**
  * @author Anton Kurinnoy

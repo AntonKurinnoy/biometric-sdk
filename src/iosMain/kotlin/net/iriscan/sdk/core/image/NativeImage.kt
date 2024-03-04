@@ -75,7 +75,7 @@ internal actual fun internalResizeNativeImage(image: NativeImage, newWidth: Int,
     return resizedImage.pointed
 }
 
-internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : IntArray {
+internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, y: Int) : Color {
     val width = CGImageGetWidth(image.ptr)
     val height = CGImageGetHeight(image.ptr)
     val pixelCount = width * height
@@ -94,7 +94,7 @@ internal actual fun internalNativeImageGetRGBPixels(image: NativeImage, x: Int, 
 
     CGContextRelease(context)
 
-    return intArrayOf(red, green, blue)
+    return createColor(red, green, blue)
 }
 
 internal actual fun internalNativeImageGetWidth(image: NativeImage): Int = CGImageGetWidth(image.ptr).toInt()

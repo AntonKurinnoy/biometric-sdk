@@ -12,47 +12,42 @@ interface Order : Transform
 
 class ChangeOrder(private val newOrder: OrderType) : Order {
     override fun transform(tensor: Tensor): Tensor {
+        val size = tensor.data.size.toInt()
+        val floatArray = FloatArray(size)
+        (0 until size).forEach { floatArray[it] = tensor.data.readFloat() }
+        val newArray = FloatArray(size)
+        val (width, height) = when (newOrder) {
+            OrderType.CHW -> tensor.shape[2] to tensor.shape[3]
+            OrderType.CWH -> tensor.shape[3] to tensor.shape[2]
+        }
+
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val indexHWRed = x * height + y
+                val indexWHRed = y * width + x
+                val indexHWGreen = width * height + x * height + y
+                val indexWHGreen = width * height + y * width + x
+                val indexHWBlue = 2 * width * height + x * height + y
+                val indexWHBlue = 2 * width * height + y * width + x
+                when (newOrder) {
+                    OrderType.CHW -> {
+                        newArray[indexWHRed] = floatArray[indexHWRed]
+                        newArray[indexHWGreen] = floatArray[indexWHGreen]
+                        newArray[indexHWBlue] = floatArray[indexWHBlue]
+                    }
+
+                    OrderType.CWH -> {
+                        newArray[indexHWRed] = floatArray[indexWHRed]
+                        newArray[indexWHGreen] = floatArray[indexHWGreen]
+                        newArray[indexWHBlue] = floatArray[indexHWBlue]
+                    }
+                }
+            }
+        }
+
         return when (newOrder) {
-            OrderType.CHW -> changeWHtoHW(tensor)
-            OrderType.CWH -> changeHWtoWH(tensor)
+            OrderType.CHW -> TensorFactory.create(intArrayOf(tensor.shape[0], tensor.shape[1], height, width), newArray)
+            OrderType.CWH -> TensorFactory.create(intArrayOf(tensor.shape[0], tensor.shape[1], width, height), newArray)
         }
-    }
-
-    private fun changeWHtoHW(tensor: Tensor): Tensor {
-        val size = tensor.data.size.toInt()
-        val floatArray = FloatArray(size)
-        (0 until size).forEach { floatArray[it] = tensor.data.readFloat() }
-        val newArray = FloatArray(size)
-        val width = tensor.shape[2]
-        val height = tensor.shape[3]
-
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                newArray[x * height + y] = floatArray[y * width + x]
-                newArray[width * height + x * height + y] = floatArray[width * height + y * width + x]
-                newArray[2 * width * height + x * height + y] = floatArray[2 * width * height + y * width + x]
-            }
-        }
-
-        return TensorFactory.create(intArrayOf(tensor.shape[0], tensor.shape[1], height, width), newArray)
-    }
-
-    private fun changeHWtoWH(tensor: Tensor): Tensor {
-        val size = tensor.data.size.toInt()
-        val floatArray = FloatArray(size)
-        (0 until size).forEach { floatArray[it] = tensor.data.readFloat() }
-        val newArray = FloatArray(size)
-        val height = tensor.shape[2]
-        val width = tensor.shape[3]
-
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                newArray[y * width + x] = floatArray[x * height + y]
-                newArray[width * height + y * width + x] = floatArray[width * height + x * height + y]
-                newArray[2 * width * height + y * width + x] = floatArray[2 * width * height + x * height + y]
-            }
-        }
-
-        return TensorFactory.create(intArrayOf(tensor.shape[0], tensor.shape[1], width, height), newArray)
     }
 }
